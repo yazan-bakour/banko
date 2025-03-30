@@ -4,12 +4,16 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DotNetEnv;
 using Banko.Data;
+using Banko.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 Env.Load();
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<UserService>();
 
 var databaseName = Environment.GetEnvironmentVariable("DATABASE_NAME");
 var databasePassword = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
@@ -75,7 +79,6 @@ builder.Services.AddSwaggerGen(options =>
 {
 	options.SwaggerDoc("v1", new() { Title = "Banko API", Version = "v1" });
 
-	// Add JWT Authentication in Swagger
 	options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
 	{
 		Name = "Authorization",

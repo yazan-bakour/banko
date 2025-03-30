@@ -10,9 +10,10 @@ namespace Banko.Models
     public int Id { get; set; }
 
     [Required]
-    [ForeignKey("User")]
     public int UserId { get; set; }
 
+    [Required]
+    [ForeignKey("UserId")]
     public User? User { get; set; }
 
     [Required]

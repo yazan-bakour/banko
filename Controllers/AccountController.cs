@@ -1,30 +1,31 @@
-using Banko.Data;
 using Banko.Models;
 using Banko.Models.DTOs;
 using Banko.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+
+// TODO: Add test.
+// TODO: Remove messages from responses.
 
 namespace Banko.Controllers
 {
   [ApiController]
   [Route("api/accounts")]
-  public class AccountController(AppDbContext context) : ControllerBase
+  public class AccountController(AccountService accountService, UserService userService) : ControllerBase
   {
-    private readonly AppDbContext _context = context;
-
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
     {
-      var accounts = await _context.Accounts.ToListAsync();
+      var accounts = await accountService.GetAllAccountsAsync();
       return Ok(accounts);
     }
 
     [HttpGet("{id}")]
+    [Authorize(Roles = "Admin,Support")]
     public async Task<ActionResult<Account>> GetAccount(int id)
     {
-      var account = await _context.Accounts.FindAsync(id);
+      var account = await accountService.GetAccountByIdAsync(id);
       if (account == null)
       {
         return NotFound();
@@ -36,7 +37,7 @@ namespace Banko.Controllers
     [Route("create")]
     public async Task<ActionResult<Account>> CreateAccount([FromBody] AccountCreateDto request)
     {
-      var user = await _context.Users.FindAsync(request.UserId);
+      var user = await userService.GetUserByIdAsync(request.UserId);
       if (user == null)
       {
         return NotFound(new { message = "User not found" });
@@ -53,28 +54,35 @@ namespace Banko.Controllers
         CreatedAt = DateTime.UtcNow
       };
 
-      _context.Accounts.Add(account);
-      await _context.SaveChangesAsync();
+      var createdAccount = await accountService.CreateAccountAsync(account);
+
+      if (createdAccount == null)
+      {
+        return BadRequest(new { message = "Failed to create account" });
+      }
 
       return CreatedAtAction(
         nameof(GetAccount),
-        new { id = account.Id },
-        new { accountId = account.Id, email = account.User.Email, userName = account.User.FullName, accountNumber = account.AccountNumber, balance = account.Balance }
+        new { id = createdAccount.Id },
+        new
+        {
+          accountId = createdAccount.Id,
+          email = createdAccount.User?.Email,
+          userName = createdAccount.User?.FullName,
+          accountNumber = createdAccount.AccountNumber,
+          balance = createdAccount.Balance
+        }
       );
     }
 
     [HttpPut("{id}")]
     public async Task<ActionResult<Account>> UpdateAccount(int id, [FromBody] decimal balance)
     {
-      var account = await _context.Accounts.FindAsync(id);
+      var account = await accountService.UpdateAccountAsync(id, balance);
       if (account == null)
       {
         return NotFound(new { message = "Account not found" });
       }
-      // For now I update the balance of the account
-      account.Balance = balance;
-      _context.Accounts.Update(account);
-      await _context.SaveChangesAsync();
 
       return Ok(new { account });
     }
@@ -83,13 +91,11 @@ namespace Banko.Controllers
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Account>> DeleteAccount(int id)
     {
-      var accountResult = await GetAccount(id);
-      if (accountResult.Value == null)
+      var deleted = await accountService.DeleteAccountAsync(id);
+      if (!deleted)
       {
         return NotFound();
       }
-      _context.Accounts.Remove(accountResult.Value);
-      await _context.SaveChangesAsync();
       return Ok(new { message = "Account deleted successfully" });
     }
   }
