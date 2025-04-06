@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
+// TODO: move GenerateJwtToken to Utils.
 
 namespace Banko.Services
 {

@@ -2,6 +2,8 @@ using Banko.Data;
 using Banko.Models;
 using Microsoft.EntityFrameworkCore;
 
+// TODO: move GenerateAccountNumber to helper.
+
 namespace Banko.Services
 {
   public class AccountService
