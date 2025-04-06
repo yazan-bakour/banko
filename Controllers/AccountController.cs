@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 // TODO: Add test.
 // TODO: Remove messages from responses.
+// TODO: Use explicit type declaration instead of var
 
 namespace Banko.Controllers
 {

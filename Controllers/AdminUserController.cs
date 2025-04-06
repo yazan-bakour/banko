@@ -7,6 +7,7 @@ using Banko.Services;
 // TODO: Remove messages from responses.
 // TODO: Add get user by id functionality.
 // TODO: Add update user functionality.
+// TODO: Use explicit type declaration instead of var
 
 namespace Banko.Controllers
 {

@@ -11,6 +11,7 @@ using Banko.Services;
 // TODO: Add change password functionality.
 // TODO: Add test.
 // TODO: Remove messages from responses.
+// TODO: Use explicit type declaration instead of var
 
 namespace Banko.Controllers
 {

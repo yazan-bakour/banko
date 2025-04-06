@@ -8,19 +8,14 @@ using System.Security.Claims;
 using System.Text;
 
 // TODO: move GenerateJwtToken to Utils.
+// TODO: Use explicit type declaration instead of var
 
 namespace Banko.Services
 {
-  public class UserService
+  public class UserService(AppDbContext context, IConfiguration configuration)
   {
-    private readonly AppDbContext _context;
-    private readonly IConfiguration _configuration;
-
-    public UserService(AppDbContext context, IConfiguration configuration)
-    {
-      _context = context;
-      _configuration = configuration;
-    }
+    private readonly AppDbContext _context = context;
+    private readonly IConfiguration _configuration = configuration;
 
     public string GenerateJwtToken(User user)
     {

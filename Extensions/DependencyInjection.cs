@@ -15,6 +15,7 @@ namespace Banko.Extensions
     {
       services.AddScoped<AccountService>();
       services.AddScoped<UserService>();
+      services.AddScoped<FundsService>();
 
       services.AddControllers();
       services.AddEndpointsApiExplorer();

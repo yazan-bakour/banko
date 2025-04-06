@@ -18,6 +18,8 @@ if (string.IsNullOrEmpty(jwtSecret))
 	throw new InvalidOperationException("JWT_SECRET_KEY is missing in the .env file!");
 }
 
+builder.Configuration["Jwt:Key"] = jwtSecret;
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 if (string.IsNullOrEmpty(connectionString))

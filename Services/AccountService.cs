@@ -3,16 +3,13 @@ using Banko.Models;
 using Microsoft.EntityFrameworkCore;
 
 // TODO: move GenerateAccountNumber to helper.
+// TODO: Use explicit type declaration instead of var
 
 namespace Banko.Services
 {
-  public class AccountService
+  public class AccountService(AppDbContext context)
   {
-    private readonly AppDbContext _context;
-    public AccountService(AppDbContext context)
-    {
-      _context = context;
-    }
+    private readonly AppDbContext _context = context;
 
     public async Task<IEnumerable<Account>> GetAllAccountsAsync()
     {
