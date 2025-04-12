@@ -7,8 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-// TODO: move GenerateJwtToken to Utils.
-// TODO: Use explicit type declaration instead of var
+// move GenerateJwtToken to Utils.
 
 namespace Banko.Services
 {
@@ -19,24 +18,24 @@ namespace Banko.Services
 
     public string GenerateJwtToken(User user)
     {
-      var jwtSettings = _configuration.GetSection("Jwt");
-      var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? throw new InvalidOperationException("JWT key is missing")));
+      IConfiguration jwtSettings = _configuration.GetSection("Jwt");
+      SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? throw new InvalidOperationException("JWT key is missing")));
 
-      var claims = new[]
-      {
-        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-        new Claim(JwtRegisteredClaimNames.Email, user.Email),
-        new Claim(ClaimTypes.Role, user.Role.ToString())
-      };
+      Claim[] claims =
+      [
+        new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+        new(JwtRegisteredClaimNames.Email, user.Email),
+        new(ClaimTypes.Role, user.Role.ToString())
+      ];
 
-      var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+      SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256);
 
-      var token = new JwtSecurityToken(
-          issuer: jwtSettings["Issuer"],
-          audience: jwtSettings["Audience"],
-          claims: claims,
-          expires: DateTime.Now.AddMinutes(double.Parse(jwtSettings["ExpiresInMinutes"] ?? throw new InvalidOperationException("JWT expires in minutes is missing"))),
-          signingCredentials: creds
+      JwtSecurityToken token = new(
+        issuer: jwtSettings["Issuer"],
+        audience: jwtSettings["Audience"],
+        claims: claims,
+        expires: DateTime.Now.AddMinutes(double.Parse(jwtSettings["ExpiresInMinutes"] ?? throw new InvalidOperationException("JWT expires in minutes is missing"))),
+        signingCredentials: creds
       );
 
       return new JwtSecurityTokenHandler().WriteToken(token);

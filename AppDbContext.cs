@@ -9,6 +9,7 @@ namespace Banko.Data
 		public DbSet<Account> Accounts { get; set; }
 		public DbSet<RevokedToken> RevokedTokens { get; set; }
 		public DbSet<Funds> Funds { get; set; }
+		public DbSet<Transactions> Transactions { get; set; }
 	}
 
 }

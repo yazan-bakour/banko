@@ -4,9 +4,9 @@ using Banko.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-// TODO: Add test.
-// TODO: Remove messages from responses.
-// TODO: Use explicit type declaration instead of var
+// Add test.
+// Remove messages from responses.
+// Use explicit type declaration instead of var
 
 namespace Banko.Controllers
 {
@@ -18,7 +18,7 @@ namespace Banko.Controllers
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
     {
-      var accounts = await accountService.GetAllAccountsAsync();
+      IEnumerable<Account> accounts = await accountService.GetAllAccountsAsync();
       return Ok(accounts);
     }
 
@@ -26,7 +26,7 @@ namespace Banko.Controllers
     [Authorize(Roles = "Admin,Support")]
     public async Task<ActionResult<Account>> GetAccount(int id)
     {
-      var account = await accountService.GetAccountByIdAsync(id);
+      Account? account = await accountService.GetAccountByIdAsync(id);
       if (account == null)
       {
         return NotFound();
@@ -38,15 +38,15 @@ namespace Banko.Controllers
     [Route("create")]
     public async Task<ActionResult<Account>> CreateAccount([FromBody] AccountCreateDto request)
     {
-      var user = await userService.GetUserByIdAsync(request.UserId);
+      User? user = await userService.GetUserByIdAsync(request.UserId);
       if (user == null)
       {
         return NotFound(new { message = "User not found" });
       }
 
-      var accountNumber = AccountService.GenerateAccountNumber();
+      string accountNumber = AccountService.GenerateAccountNumber();
 
-      var account = new Account
+      Account account = new()
       {
         UserId = request.UserId,
         User = user,
@@ -55,7 +55,7 @@ namespace Banko.Controllers
         CreatedAt = DateTime.UtcNow
       };
 
-      var createdAccount = await accountService.CreateAccountAsync(account);
+      Account? createdAccount = await accountService.CreateAccountAsync(account);
 
       if (createdAccount == null)
       {
@@ -79,7 +79,7 @@ namespace Banko.Controllers
     [HttpPut("{id}")]
     public async Task<ActionResult<Account>> UpdateAccount(int id, [FromBody] decimal balance)
     {
-      var account = await accountService.UpdateAccountAsync(id, balance);
+      Account? account = await accountService.UpdateAccountAsync(id, balance);
       if (account == null)
       {
         return NotFound(new { message = "Account not found" });
@@ -92,10 +92,10 @@ namespace Banko.Controllers
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Account>> DeleteAccount(int id)
     {
-      var deleted = await accountService.DeleteAccountAsync(id);
+      bool deleted = await accountService.DeleteAccountAsync(id);
       if (!deleted)
       {
-        return NotFound();
+        return NotFound(new { message = "Account not found" });
       }
       return Ok(new { message = "Account deleted successfully" });
     }

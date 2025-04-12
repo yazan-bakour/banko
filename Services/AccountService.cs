@@ -2,8 +2,7 @@ using Banko.Data;
 using Banko.Models;
 using Microsoft.EntityFrameworkCore;
 
-// TODO: move GenerateAccountNumber to helper.
-// TODO: Use explicit type declaration instead of var
+// move GenerateAccountNumber to helper.
 
 namespace Banko.Services
 {
@@ -34,7 +33,7 @@ namespace Banko.Services
 
     public async Task<Account?> UpdateAccountAsync(int id, decimal balance)
     {
-      var account = await GetAccountByIdAsync(id);
+      Account? account = await GetAccountByIdAsync(id);
       if (account == null) return null;
 
       account.Balance = balance;
@@ -45,7 +44,7 @@ namespace Banko.Services
 
     public async Task<bool> DeleteAccountAsync(int id)
     {
-      var account = await GetAccountByIdAsync(id);
+      Account? account = await GetAccountByIdAsync(id);
       if (account == null) return false;
 
       _context.Accounts.Remove(account);

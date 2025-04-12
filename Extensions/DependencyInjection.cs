@@ -5,6 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Banko.Data;
 
+// add fields ui to swagger
+
 namespace Banko.Extensions
 {
   public static class DependencyInjection
@@ -16,6 +18,9 @@ namespace Banko.Extensions
       services.AddScoped<AccountService>();
       services.AddScoped<UserService>();
       services.AddScoped<FundsService>();
+      services.AddHttpContextAccessor();
+
+      services.AddScoped<TransactionsService>();
 
       services.AddControllers();
       services.AddEndpointsApiExplorer();

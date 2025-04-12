@@ -4,14 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Banko.Services;
 
-// TODO: Add validation.
-// TODO: Add logout revokedToken functionality.
-// TODO: Add forgot password functionality.
-// TODO: Add reset password functionality.
-// TODO: Add change password functionality.
-// TODO: Add test.
-// TODO: Remove messages from responses.
-// TODO: Use explicit type declaration instead of var
+// Add validation.
+// Add logout revokedToken functionality.
+// Add forgot password functionality.
+// Add reset password functionality.
+// Add change password functionality.
+// Add test.
+// Remove messages from responses.
 
 namespace Banko.Controllers
 {
@@ -23,23 +22,23 @@ namespace Banko.Controllers
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserRegisterDto userDto)
     {
-      var existingUser = await userService.GetUserByEmailAsync(userDto.Email);
+      User? existingUser = await userService.GetUserByEmailAsync(userDto.Email);
 
       if (existingUser != null)
       {
         return BadRequest(new { message = "Email already registered." });
       }
 
-      var passwordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+      string passwordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
 
-      var newUser = new User
+      User newUser = new()
       {
         FullName = userDto.FullName,
         Email = userDto.Email,
         PasswordHash = passwordHash
       };
 
-      var user = await userService.AddUserAsync(newUser);
+      User? user = await userService.AddUserAsync(newUser);
 
       if (user == null)
       {
@@ -62,13 +61,13 @@ namespace Banko.Controllers
     [HttpPost("login")]
     public async Task<IActionResult> Login(UserLoginDto loginDto)
     {
-      var user = await userService.GetUserByEmailAsync(loginDto.Email);
+      User? user = await userService.GetUserByEmailAsync(loginDto.Email);
       if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
       {
         return Unauthorized(new { message = "Invalid email or password." });
       }
 
-      var token = userService.GenerateJwtToken(user);
+      string token = userService.GenerateJwtToken(user);
 
       return Ok(new
       {
@@ -88,7 +87,7 @@ namespace Banko.Controllers
     [ProducesResponseType(typeof(IActionResult), 200)]
     public async Task<IActionResult> GetAdminData()
     {
-      var admins = await userService.GetUserByRoleAsync(UserRole.Admin);
+      IEnumerable<User> admins = await userService.GetUserByRoleAsync(UserRole.Admin);
       return Ok(
         new
         {
@@ -102,7 +101,7 @@ namespace Banko.Controllers
     [ProducesResponseType(typeof(IActionResult), 200)]
     public async Task<IActionResult> GetCustomerSupportData()
     {
-      var supports = await userService.GetUserByRoleAsync(UserRole.Support);
+      IEnumerable<User> supports = await userService.GetUserByRoleAsync(UserRole.Support);
       return Ok(
         new
         {
@@ -116,7 +115,7 @@ namespace Banko.Controllers
     [ProducesResponseType(typeof(IActionResult), 200)]
     public async Task<IActionResult> GetCustomerData()
     {
-      var customers = await userService.GetUserByRoleAsync(UserRole.Customer);
+      IEnumerable<User> customers = await userService.GetUserByRoleAsync(UserRole.Customer);
       return Ok(
         new
         {

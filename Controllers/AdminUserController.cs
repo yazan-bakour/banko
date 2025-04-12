@@ -2,12 +2,12 @@ using Banko.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Banko.Services;
+using Banko.Models;
 
-// TODO: Add test.
-// TODO: Remove messages from responses.
-// TODO: Add get user by id functionality.
-// TODO: Add update user functionality.
-// TODO: Use explicit type declaration instead of var
+// Add test.
+// Remove messages from responses.
+// Add get user by id functionality.
+// Add update user functionality.
 
 namespace Banko.Controllers
 {
@@ -19,7 +19,7 @@ namespace Banko.Controllers
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserReadDto>>> GetUsers()
     {
-      var users = await userService.GetAllUsersAsync();
+      IEnumerable<User> users = await userService.GetAllUsersAsync();
       return Ok(users);
     }
 
@@ -27,7 +27,7 @@ namespace Banko.Controllers
     // Update user role, for now.
     public async Task<IActionResult> UpdateUser(int id, UserUpdateDto updateDto)
     {
-      var user = await userService.GetUserByIdAsync(id);
+      User? user = await userService.GetUserByIdAsync(id);
       if (user == null)
       {
         return NotFound(new { message = "User not found." });
@@ -44,7 +44,7 @@ namespace Banko.Controllers
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(int id)
     {
-      var user = await userService.GetUserByIdAsync(id);
+      User? user = await userService.GetUserByIdAsync(id);
       if (user == null)
       {
         return NotFound(new { message = "User not found." });

@@ -2,8 +2,6 @@ using Banko.Data;
 using Banko.Models;
 using Microsoft.EntityFrameworkCore;
 
-// TODO: Use explicit type declaration instead of var
-
 namespace Banko.Services
 {
   public class FundsService(AppDbContext context)
@@ -29,8 +27,8 @@ namespace Banko.Services
 
     public async Task<bool> TransferFundsAsync(int sourceId, int destinationId, decimal amount, string? message = null)
     {
-      var sourceFunds = await _context.Funds.FindAsync(sourceId);
-      var destinationFunds = await _context.Funds.FindAsync(destinationId);
+      Funds? sourceFunds = await _context.Funds.FindAsync(sourceId);
+      Funds? destinationFunds = await _context.Funds.FindAsync(destinationId);
 
       if (sourceFunds == null || destinationFunds == null || !sourceFunds.IsActive || !destinationFunds.IsActive)
       {
@@ -61,6 +59,7 @@ namespace Banko.Services
 
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
+
         return true;
       }
       catch
@@ -72,7 +71,7 @@ namespace Banko.Services
 
     public async Task<bool> UpdateFundsAsync(int id, decimal newBalance)
     {
-      var funds = await _context.Funds.FindAsync(id);
+      Funds? funds = await _context.Funds.FindAsync(id);
       if (funds == null || !funds.IsActive)
       {
         return false;
@@ -86,7 +85,7 @@ namespace Banko.Services
 
     public async Task<bool> DeactivateFundsAsync(int id)
     {
-      var funds = await _context.Funds.FindAsync(id);
+      Funds? funds = await _context.Funds.FindAsync(id);
       if (funds == null)
       {
         return false;
