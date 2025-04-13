@@ -1,7 +1,6 @@
 @Banko_HostAddress = http://localhost:5077
 
-// TODO: change weatherforecast to something else.
-GET {{Banko_HostAddress}}/weatherforecast/
+GET {{Banko_HostAddress}}/banko/
 Accept: application/json
 
 ###

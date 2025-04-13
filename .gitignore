@@ -21,6 +21,7 @@ obj/
 .env
 .env.local
 .env.*.local
+TODOS.md
 
 # Build results
 [Dd]ebug/
@@ -100,8 +101,7 @@ ScaffoldingReadMe.txt
 TestResult.xml
 nunit-*.xml
 
-# Environment variables
-.env
+wwwroot/*
 
 # Database files
 *.db

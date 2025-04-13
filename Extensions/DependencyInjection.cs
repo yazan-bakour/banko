@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Banko.Data;
+using System.Reflection;
+using Banko.Filters;
 
 // add fields ui to swagger
 
@@ -64,6 +66,19 @@ namespace Banko.Extensions
       services.AddSwaggerGen(options =>
       {
         options.SwaggerDoc("v1", new() { Title = "Banko API", Version = "v1" });
+        options.EnableAnnotations();
+        options.SchemaFilter<SwaggerEnumSchemaFilter>();
+
+        var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        options.IncludeXmlComments(xmlPath);
+
+        options.CustomSchemaIds(type => type.FullName?.Replace("+", "_"));
+        options.SchemaGeneratorOptions = new Swashbuckle.AspNetCore.SwaggerGen.SchemaGeneratorOptions
+        {
+          UseInlineDefinitionsForEnums = true,
+          SchemaIdSelector = type => type.Name
+        };
 
         options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
         {

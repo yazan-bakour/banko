@@ -2,6 +2,7 @@ using Banko.Models;
 using Banko.Models.DTOs;
 using Banko.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 // Add test.
@@ -12,6 +13,7 @@ namespace Banko.Controllers
 {
   [ApiController]
   [Route("api/accounts")]
+  [EnableCors("CorsPolicy")]
   public class AccountController(AccountService accountService, UserService userService) : ControllerBase
   {
     [HttpGet]
