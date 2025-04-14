@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Swashbuckle.AspNetCore.Annotations;
+// using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel;
-using Banko.Validation;
 
 // move metadata to it's own class
 // move validations from controller to attributes 
@@ -15,27 +14,12 @@ namespace Banko.Models
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
 
-    [Required]
-    [SwaggerSchema(
-      Description = "Internal transaction",
-      Format = "boolean"
-    )]
-    public bool IsInternal { get; set; }
-
-    [SwaggerSchema(
-      Description = "Account number for external transactions",
-      Format = "string"
-    )]
     [StringLength(20)]
     public string? AccountNumber { get; set; }
 
     [Required]
     public string? TransactionNumber { get; set; }
 
-    [SwaggerSchema(
-      Description = "Amount of the transaction",
-      Format = "decimal"
-    )]
     [Range(0.01, double.MaxValue)]
     [DefaultValue(0.00)]
     public decimal Amount { get; set; }
@@ -43,7 +27,6 @@ namespace Banko.Models
     [Required]
     public DateTime TransactionDate { get; set; }
 
-    [SwaggerSchema(Description = "Type of transaction")]
     [DefaultValue(TransactionType.Deposit)]
     [EnumDataType(typeof(TransactionType))]
     [Column(TypeName = "varchar(20)")]
@@ -55,28 +38,14 @@ namespace Banko.Models
 
     public string? Description { get; set; }
 
-    [SwaggerSchema(
-        Description = "Currency of the transaction",
-        Format = "string"
-    )]
     [DefaultValue(Currency.EUR)]
     [EnumDataType(typeof(Currency))]
     [Column(TypeName = "varchar(3)")]
     public Currency Currency { get; set; } = Currency.EUR;
 
-    public string? UserId { get; set; }
-
-    [SwaggerSchema(
-        Description = "Source account Id",
-        Format = "string"
-    )]
     [StringLength(10)]
     public string? SourceAccountId { get; set; }
 
-    [SwaggerSchema(
-        Description = "Destination account Id",
-        Format = "string"
-    )]
     [StringLength(10)]
     public string? DestinationAccountId { get; set; }
 
@@ -108,7 +77,6 @@ namespace Banko.Models
     public Transactions? Transaction { get; set; }
   }
 
-  [SwaggerSchema(Description = "Available transaction types")]
   public enum TransactionType
   {
     [Description("Deposit")]
@@ -133,7 +101,6 @@ namespace Banko.Models
     Interest
   }
 
-  [SwaggerSchema(Description = "Available payment methods")]
   public enum PaymentMethod
   {
     [Description("Credit Card Payment")]

@@ -2,18 +2,13 @@ using Banko.Models;
 using Banko.Models.DTOs;
 using Banko.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-
-// Add test.
-// Remove messages from responses.
-// Use explicit type declaration instead of var
 
 namespace Banko.Controllers
 {
   [ApiController]
   [Route("api/accounts")]
-  [EnableCors("CorsPolicy")]
+  // [EnableCors("CorsPolicy")]
   public class AccountController(AccountService accountService, UserService userService) : ControllerBase
   {
     [HttpGet]
@@ -28,7 +23,7 @@ namespace Banko.Controllers
     [Authorize(Roles = "Admin,Support")]
     public async Task<ActionResult<Account>> GetAccount(int id)
     {
-      Account? account = await accountService.GetAccountByIdAsync(id);
+      Account? account = await accountService.GetAccountByAccountIdAsync(id);
       if (account == null)
       {
         return NotFound();

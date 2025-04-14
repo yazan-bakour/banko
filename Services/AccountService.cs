@@ -17,11 +17,19 @@ namespace Banko.Services
         .ToListAsync();
     }
 
-    public async Task<Account?> GetAccountByIdAsync(int id)
+    public async Task<Account?> GetAccountByAccountIdAsync(int id)
+    // Change to GetAccounts and return list of accounts.
     {
       return await _context.Accounts
         .Include(a => a.User)
         .FirstOrDefaultAsync(a => a.Id == id);
+    }
+
+    public async Task<IEnumerable<Account>> GetAccountsByUserIdAsync(string userId)
+    {
+      return await _context.Accounts
+          .Where(a => a.UserId.ToString() == userId)
+          .ToListAsync();
     }
 
     public async Task<Account> CreateAccountAsync(Account account)
@@ -33,7 +41,7 @@ namespace Banko.Services
 
     public async Task<Account?> UpdateAccountAsync(int id, decimal balance)
     {
-      Account? account = await GetAccountByIdAsync(id);
+      Account? account = await GetAccountByAccountIdAsync(id);
       if (account == null) return null;
 
       account.Balance = balance;
@@ -44,7 +52,7 @@ namespace Banko.Services
 
     public async Task<bool> DeleteAccountAsync(int id)
     {
-      Account? account = await GetAccountByIdAsync(id);
+      Account? account = await GetAccountByAccountIdAsync(id);
       if (account == null) return false;
 
       _context.Accounts.Remove(account);

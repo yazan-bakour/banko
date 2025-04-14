@@ -1,42 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 using Banko.Extensions;
-using Banko.Filters;
-using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 Env.Load();
 
-var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
-
-builder.Services.AddCors(options =>
-{
-	options.AddPolicy("CorsPolicy",
-		policyBuilder =>
-		{
-			policyBuilder
-				.WithOrigins(allowedOrigins)
-				.AllowCredentials()
-				.WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-				.WithHeaders("Authorization", "Content-Type");
-		});
-});
-
-builder.Services.AddSwagger();
-builder.Services.AddSwaggerGen(c =>
-{
-	c.SchemaFilter<SwaggerEnumSchemaFilter>();
-	c.EnableAnnotations();
-
-	var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-	var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-	c.IncludeXmlComments(xmlPath);
-
-	c.CustomSchemaIds(type => type.Name);
-});
-
 builder.Services.AddApplicationServices();
+builder.Services.AddSwagger();
 
 var databaseName = Environment.GetEnvironmentVariable("DATABASE_NAME");
 var databasePassword = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
@@ -63,20 +34,6 @@ connectionString = connectionString
 builder.Services.AddDatabase(connectionString);
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
-// builder.Services.AddHsts(options =>
-// {
-//     options.Preload = true;
-//     options.IncludeSubDomains = true;
-//     options.MaxAge = TimeSpan.FromDays(60);
-//     options.ExcludedHosts.Add("example.com");
-//     options.ExcludedHosts.Add("www.example.com");
-// });
-
-builder.Services.AddHttpsRedirection(options =>
-{
-	options.HttpsPort = 7296;
-});
-
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -93,7 +50,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseCors("CorsPolicy");
+
 app.UseAuthentication();
 app.UseAuthorization();
 

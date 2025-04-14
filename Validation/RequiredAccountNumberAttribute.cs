@@ -12,10 +12,10 @@ namespace Banko.Validation
     {
       Transactions transaction = (Transactions)validationContext.ObjectInstance;
 
-      if (!transaction.IsInternal && string.IsNullOrEmpty(transaction.AccountNumber))
-      {
-        return new ValidationResult("AccountNumber is required for external transactions.");
-      }
+      // if (!transaction.IsInternal && string.IsNullOrEmpty(transaction.AccountNumber))
+      // {
+      //   return new ValidationResult("AccountNumber is required for external transactions.");
+      // }
 
       return ValidationResult.Success;
     }
