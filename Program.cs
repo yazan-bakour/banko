@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 using Banko.Extensions;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,8 @@ connectionString = connectionString
 
 builder.Services.AddDatabase(connectionString);
 builder.Services.AddJwtAuthentication(builder.Configuration);
+
+builder.Host.UseSerilog();
 
 var app = builder.Build();
 

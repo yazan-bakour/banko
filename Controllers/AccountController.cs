@@ -1,3 +1,4 @@
+using Banko.Helpers;
 using Banko.Models;
 using Banko.Models.DTOs;
 using Banko.Services;
@@ -41,7 +42,7 @@ namespace Banko.Controllers
         return NotFound(new { message = "User not found" });
       }
 
-      string accountNumber = AccountService.GenerateAccountNumber();
+      string accountNumber = AccountHelper.GenerateAccountNumber();
 
       Account account = new()
       {

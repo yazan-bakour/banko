@@ -2,8 +2,6 @@ using Banko.Data;
 using Banko.Models;
 using Microsoft.EntityFrameworkCore;
 
-// move GenerateAccountNumber to helper.
-
 namespace Banko.Services
 {
   public class AccountService(AppDbContext context)
@@ -58,12 +56,6 @@ namespace Banko.Services
       _context.Accounts.Remove(account);
       await _context.SaveChangesAsync();
       return true;
-    }
-
-    public static string GenerateAccountNumber()
-    {
-      Random random = new();
-      return "NKO" + random.Next(10000000, 99999999).ToString();
     }
   }
 }

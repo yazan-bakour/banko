@@ -6,8 +6,7 @@ using System.Text;
 using Banko.Data;
 using System.Reflection;
 using Banko.Filters;
-
-// add fields ui to swagger
+using Banko.Helpers;
 
 namespace Banko.Extensions
 {
@@ -21,8 +20,9 @@ namespace Banko.Extensions
       services.AddScoped<UserService>();
       services.AddScoped<FundsService>();
       services.AddHttpContextAccessor();
-
       services.AddScoped<TransactionsService>();
+      services.AddFileLogging();
+      services.AddScoped<UserHelper>();
 
       services.AddControllers();
       services.AddEndpointsApiExplorer();
