@@ -27,6 +27,8 @@ namespace Banko.Extensions
       services.AddControllers();
       services.AddEndpointsApiExplorer();
 
+      services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
       return services;
     }
 

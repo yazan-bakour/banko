@@ -105,3 +105,4 @@ wwwroot/*
 
 # Database files
 *.db
+Backup

@@ -11,5 +11,4 @@ namespace Banko.Data
 		public DbSet<Funds> Funds { get; set; }
 		public DbSet<Transactions> Transactions { get; set; }
 	}
-
 }

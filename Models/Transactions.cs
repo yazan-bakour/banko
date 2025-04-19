@@ -1,10 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-// using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel;
 
 // move metadata to it's own class
-// move validations from controller to attributes 
 
 namespace Banko.Models
 {
@@ -13,19 +11,39 @@ namespace Banko.Models
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
+    public required string TransactionNumber { get; set; }
+    public required string ReferenceNumber { get; set; }
 
     [StringLength(20)]
-    public string? AccountNumber { get; set; }
+    public required string SourceAccountNumber { get; set; }
 
-    [Required]
-    public string? TransactionNumber { get; set; }
+    [StringLength(10)]
+    public required string SourceAccountId { get; set; }
+
+    [StringLength(10)]
+    public required string DestinationAccountId { get; set; }
+
+    [StringLength(20)]
+    public required string SourceName { get; set; }
+
+    [StringLength(20)]
+    public required string RecipientName { get; set; }
+
+    [StringLength(20)]
+    public required string DestinationAccountNumber { get; set; }
 
     [Range(0.01, double.MaxValue)]
     [DefaultValue(0.00)]
     public decimal Amount { get; set; }
 
-    [Required]
-    public DateTime TransactionDate { get; set; }
+    [EnumDataType(typeof(Currency))]
+    [Column(TypeName = "varchar(3)")]
+    [DefaultValue(Currency.EUR)]
+    public Currency Currency { get; set; } = Currency.EUR;
+
+    [EnumDataType(typeof(PaymentMethod))]
+    [Column(TypeName = "varchar(20)")]
+    public PaymentMethod PaymentMethod { get; set; }
 
     [DefaultValue(TransactionType.Deposit)]
     [EnumDataType(typeof(TransactionType))]
@@ -36,30 +54,12 @@ namespace Banko.Models
     [Column(TypeName = "varchar(20)")]
     public TransactionStatus Status { get; set; }
 
-    public string? Description { get; set; }
-
-    [DefaultValue(Currency.EUR)]
-    [EnumDataType(typeof(Currency))]
-    [Column(TypeName = "varchar(3)")]
-    public Currency Currency { get; set; } = Currency.EUR;
-
-    [StringLength(10)]
-    public string? SourceAccountId { get; set; }
-
-    [StringLength(10)]
-    public string? DestinationAccountId { get; set; }
-
-    [EnumDataType(typeof(PaymentMethod))]
-    [Column(TypeName = "varchar(20)")]
-    public PaymentMethod PaymentMethod { get; set; }
-
-    public string? ReferenceNumber { get; set; }
-
-    public ICollection<Metadata> Metadata { get; set; } = [];
-
+    public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
     public DateTime? UpdatedAt { get; set; }
+
+    public string? Description { get; set; }
+    public ICollection<Metadata> Metadata { get; set; } = [];
   }
 
   public class Metadata
