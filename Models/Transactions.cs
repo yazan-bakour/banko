@@ -47,11 +47,11 @@ namespace Banko.Models
 
     [DefaultValue(TransactionType.Deposit)]
     [EnumDataType(typeof(TransactionType))]
-    [Column(TypeName = "varchar(20)")]
+    [Column(TypeName = "varchar(10)")]
     public TransactionType Type { get; set; }
 
     [EnumDataType(typeof(TransactionStatus))]
-    [Column(TypeName = "varchar(20)")]
+    [Column(TypeName = "varchar(10)")]
     public TransactionStatus Status { get; set; }
 
     public DateTime TransactionDate { get; set; } = DateTime.UtcNow;

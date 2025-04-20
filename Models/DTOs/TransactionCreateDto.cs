@@ -17,7 +17,7 @@ namespace Banko.Models.DTOs
 
     [Required]
     [EnumDataType(typeof(TransactionType))]
-    [Column(TypeName = "varchar(20)")]
+    [Column(TypeName = "varchar(10)")]
     [DefaultValue(TransactionType.Deposit)]
     public TransactionType Type { get; set; } = TransactionType.Deposit;
 

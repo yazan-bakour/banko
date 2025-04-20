@@ -34,6 +34,7 @@ namespace Banko.Controllers
       DateTime startDate;
       DateTime endDate = DateTime.UtcNow;
 
+      // Double check this logic
       if (!string.IsNullOrEmpty(period))
       {
         switch (period.ToLowerInvariant())

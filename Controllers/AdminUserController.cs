@@ -5,9 +5,6 @@ using Banko.Services;
 using Banko.Models;
 
 // Add test.
-// Remove messages from responses.
-// Add get user by id functionality.
-// Add update user functionality.
 
 namespace Banko.Controllers
 {
