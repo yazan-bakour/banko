@@ -3,6 +3,7 @@ using Banko.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Banko.Services;
+using Banko.Helpers;
 
 // Add validation.
 // Add logout revokedToken functionality.
@@ -10,18 +11,21 @@ using Banko.Services;
 // Add reset password functionality.
 // Add change password functionality.
 // Add test.
-// Remove messages from responses.
 
 namespace Banko.Controllers
 {
   [Route("api/users")]
   [ApiController]
   // primary constructor syntax
-  public class UserController(UserService userService) : ControllerBase
+  public class UserController(UserService userService, UserHelper userHelper) : ControllerBase
   {
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserRegisterDto userDto)
     {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(new { message = "Validation failed", errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)) });
+      }
       User? existingUser = await userService.GetUserByEmailAsync(userDto.Email);
 
       if (existingUser != null)
@@ -91,7 +95,6 @@ namespace Banko.Controllers
       return Ok(
         new
         {
-          message = "Welcome to the Admin list!",
           admins = admins.Select(admin => new { admin.FullName, admin.Email, admin.CreatedAt })
         });
     }
@@ -105,7 +108,6 @@ namespace Banko.Controllers
       return Ok(
         new
         {
-          message = "Welcome to the Customers support list!",
           supports = supports.Select(support => new { support.FullName, support.Email, support.CreatedAt })
         });
     }
@@ -119,8 +121,35 @@ namespace Banko.Controllers
       return Ok(
         new
         {
-          message = "Welcome to the Customers list!",
           customers = customers.Select(customer => new { customer.FullName, customer.Email, customer.CreatedAt })
+        });
+    }
+
+    [HttpGet("current")]
+    [Authorize(Roles = "Customer,Support,Admin")]
+    [ProducesResponseType(typeof(IActionResult), 200)]
+    public async Task<IActionResult> GetCurrentUserData()
+    {
+      string currentUserId = userHelper.GetCurrentSignedInUserId();
+      int userId = int.Parse(currentUserId);
+      User? user = await userService.GetUserByIdAsync(userId);
+
+      if (user == null)
+      {
+        return NotFound(new { message = "User not found." });
+      }
+
+      return Ok(
+        new
+        {
+          user = new
+          {
+            user.Id,
+            user.FullName,
+            user.Email,
+            user.CreatedAt,
+            user.Role
+          }
         });
     }
   }

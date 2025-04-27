@@ -32,6 +32,7 @@ namespace Banko.Controllers
 
       user.FullName = updateDto.FullName ?? user.FullName;
       user.Role = updateDto.Role;
+      user.UpdatedAt = DateTime.UtcNow;
 
       await userService.UpdateUserAsync(user);
 
