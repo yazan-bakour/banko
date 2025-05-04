@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel;
+using System.Text.Json.Serialization;
+using Banko.Helpers;
 
 // move metadata to it's own class
 
@@ -39,18 +41,23 @@ namespace Banko.Models
     [EnumDataType(typeof(Currency))]
     [Column(TypeName = "varchar(3)")]
     [DefaultValue(Currency.EUR)]
+    [JsonConverter(typeof(EnumJsonConverter<Currency>))]
     public Currency Currency { get; set; } = Currency.EUR;
 
     [EnumDataType(typeof(PaymentMethod))]
+    [DefaultValue(PaymentMethod.CreditCard)]
+    [JsonConverter(typeof(EnumJsonConverter<PaymentMethod>))]
     [Column(TypeName = "varchar(20)")]
     public PaymentMethod PaymentMethod { get; set; }
 
-    [DefaultValue(TransactionType.Deposit)]
     [EnumDataType(typeof(TransactionType))]
+    [DefaultValue(TransactionType.Deposit)]
+    [JsonConverter(typeof(EnumJsonConverter<TransactionType>))]
     [Column(TypeName = "varchar(10)")]
     public TransactionType Type { get; set; }
 
     [EnumDataType(typeof(TransactionStatus))]
+    [JsonConverter(typeof(EnumJsonConverter<TransactionStatus>))]
     [Column(TypeName = "varchar(10)")]
     public TransactionStatus Status { get; set; }
 

@@ -22,9 +22,20 @@ namespace Banko.Controllers
 
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin,Support")]
-    public async Task<ActionResult<Account>> GetAccount(int id)
+    public async Task<ActionResult<Account>> GetAccountById(int id)
     {
       Account? account = await accountService.GetAccountByAccountIdAsync(id);
+      if (account == null)
+      {
+        return NotFound();
+      }
+      return Ok(account);
+    }
+
+    [HttpGet("user/{id}/accounts")]
+    public async Task<ActionResult<Account>> GetAccountByUserId(int id)
+    {
+      IEnumerable<Account> account = await accountService.GetAccountsByUserIdAsync(id.ToString());
       if (account == null)
       {
         return NotFound();
@@ -50,7 +61,8 @@ namespace Banko.Controllers
         User = user,
         AccountNumber = accountNumber,
         Balance = request.Balance,
-        CreatedAt = DateTime.UtcNow
+        CreatedAt = DateTime.UtcNow,
+        //Update the accountCreateDto
       };
 
       Account? createdAccount = await accountService.CreateAccountAsync(account);
@@ -61,7 +73,7 @@ namespace Banko.Controllers
       }
 
       return CreatedAtAction(
-        nameof(GetAccount),
+        nameof(GetAccountById),
         new { id = createdAccount.Id },
         new
         {

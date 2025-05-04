@@ -81,7 +81,8 @@ namespace Banko.Controllers
           user.Id,
           user.FullName,
           user.Email,
-          user.Role
+          user.Role,
+          user.CreatedAt
         }
       });
     }

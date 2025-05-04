@@ -7,6 +7,7 @@ using Banko.Data;
 using System.Reflection;
 using Banko.Filters;
 using Banko.Helpers;
+using System.Text.Json.Serialization;
 
 namespace Banko.Extensions
 {
@@ -28,6 +29,11 @@ namespace Banko.Extensions
       services.AddEndpointsApiExplorer();
 
       services.AddAutoMapper(Assembly.GetExecutingAssembly());
+      services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+          options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
 
       return services;
     }
