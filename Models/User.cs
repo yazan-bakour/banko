@@ -9,12 +9,8 @@ namespace Banko.Models
     Customer,
     Support
   }
-  public class User
+  public class User : BaseEntity
   {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-
     [Required(ErrorMessage = "Full name is required")]
     [StringLength(100, MinimumLength = 2, ErrorMessage = "Full name must be between 2 and 100 characters")]
     public string FullName { get; set; } = string.Empty;

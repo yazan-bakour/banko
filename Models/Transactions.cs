@@ -41,23 +41,23 @@ namespace Banko.Models
     [EnumDataType(typeof(Currency))]
     [Column(TypeName = "varchar(3)")]
     [DefaultValue(Currency.EUR)]
-    [JsonConverter(typeof(EnumJsonConverter<Currency>))]
+    [JsonConverter(typeof(JsonStringEnumConverter<Currency>))]
     public Currency Currency { get; set; } = Currency.EUR;
 
     [EnumDataType(typeof(PaymentMethod))]
     [DefaultValue(PaymentMethod.CreditCard)]
-    [JsonConverter(typeof(EnumJsonConverter<PaymentMethod>))]
+    [JsonConverter(typeof(JsonStringEnumConverter<PaymentMethod>))]
     [Column(TypeName = "varchar(20)")]
     public PaymentMethod PaymentMethod { get; set; }
 
     [EnumDataType(typeof(TransactionType))]
     [DefaultValue(TransactionType.Deposit)]
-    [JsonConverter(typeof(EnumJsonConverter<TransactionType>))]
+    [JsonConverter(typeof(JsonStringEnumConverter<TransactionType>))]
     [Column(TypeName = "varchar(10)")]
     public TransactionType Type { get; set; }
 
     [EnumDataType(typeof(TransactionStatus))]
-    [JsonConverter(typeof(EnumJsonConverter<TransactionStatus>))]
+    [JsonConverter(typeof(JsonStringEnumConverter<TransactionStatus>))]
     [Column(TypeName = "varchar(10)")]
     public TransactionStatus Status { get; set; }
 

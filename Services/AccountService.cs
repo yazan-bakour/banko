@@ -48,6 +48,21 @@ namespace Banko.Services
       return account;
     }
 
+    public async Task<Account?> UpdateAccountStatusAsync(int id, AccountStatus newStatus)
+    {
+      Account? account = await _context.Accounts.FindAsync(id);
+      if (account == null)
+      {
+        return null;
+      }
+
+      account.Status = newStatus;
+      account.UpdatedAt = DateTime.UtcNow;
+
+      await _context.SaveChangesAsync();
+      return account;
+    }
+
     public async Task<bool> DeleteAccountAsync(int id)
     {
       Account? account = await GetAccountByAccountIdAsync(id);

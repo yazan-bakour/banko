@@ -2,7 +2,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using Banko.Helpers;
 
 namespace Banko.Models.DTOs
 {
@@ -19,9 +18,9 @@ namespace Banko.Models.DTOs
 
     [Required]
     [EnumDataType(typeof(TransactionType))]
-    [Column(TypeName = "varchar(10)")]
+    [Column(TypeName = "varchar(30)")]
     [DefaultValue(TransactionType.Deposit)]
-    [JsonConverter(typeof(EnumJsonConverter<TransactionType>))]
+    [JsonConverter(typeof(JsonStringEnumConverter<TransactionType>))]
     public TransactionType Type { get; set; } = TransactionType.Deposit;
 
     [Required]

@@ -2,7 +2,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using Banko.Helpers;
 
 namespace Banko.Models.DTOs;
 public class AccountCreateDto
@@ -17,8 +16,8 @@ public class AccountCreateDto
 
   [Required]
   [EnumDataType(typeof(AccountType))]
-  [Column(TypeName = "varchar(10)")]
+  [Column(TypeName = "varchar(30)")]
   [DefaultValue(AccountType.Savings)]
-  [JsonConverter(typeof(EnumJsonConverter<AccountType>))]
+  [JsonConverter(typeof(JsonStringEnumConverter<AccountType>))]
   public AccountType Type { get; set; }
 }

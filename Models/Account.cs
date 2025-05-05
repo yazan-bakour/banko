@@ -6,12 +6,8 @@ using Banko.Helpers;
 
 namespace Banko.Models
 {
-  public class Account
+  public class Account : BaseEntity
   {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-
     [Required]
     public int UserId { get; set; }
 
@@ -34,9 +30,9 @@ namespace Banko.Models
 
     [Required]
     [EnumDataType(typeof(AccountType))]
-    [Column(TypeName = "varchar(10)")]
+    [Column(TypeName = "varchar(30)")]
     [DefaultValue(AccountType.Savings)]
-    [JsonConverter(typeof(EnumJsonConverter<AccountType>))]
+    [JsonConverter(typeof(JsonStringEnumConverter<AccountType>))]
     public AccountType Type { get; set; }
 
     [Required]
@@ -53,14 +49,14 @@ namespace Banko.Models
     [EnumDataType(typeof(AccountStatus))]
     [Column(TypeName = "varchar(10)")]
     [DefaultValue(AccountStatus.Active)]
-    [JsonConverter(typeof(EnumJsonConverter<AccountStatus>))]
+    [JsonConverter(typeof(JsonStringEnumConverter<AccountStatus>))]
     public AccountStatus Status { get; set; }
 
     [Required]
     [EnumDataType(typeof(Currency))]
 
     [DefaultValue(Currency.EUR)]
-    [JsonConverter(typeof(EnumJsonConverter<Currency>))]
+    [JsonConverter(typeof(JsonStringEnumConverter<Currency>))]
     public Currency Currency { get; set; }
 
     public DateTime? LastTransactionDate { get; set; }

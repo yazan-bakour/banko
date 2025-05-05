@@ -62,7 +62,9 @@ namespace Banko.Controllers
         AccountNumber = accountNumber,
         Balance = request.Balance,
         CreatedAt = DateTime.UtcNow,
-        //Update the accountCreateDto
+        UpdatedAt = DateTime.UtcNow,
+        Status = AccountStatus.Inactive,
+        Type = request.Type
       };
 
       Account? createdAccount = await accountService.CreateAccountAsync(account);
@@ -90,6 +92,19 @@ namespace Banko.Controllers
     public async Task<ActionResult<Account>> UpdateAccount(int id, [FromBody] decimal balance)
     {
       Account? account = await accountService.UpdateAccountAsync(id, balance);
+      if (account == null)
+      {
+        return NotFound(new { message = "Account not found" });
+      }
+
+      return Ok(new { account });
+    }
+
+    [HttpPut("{id}/status")]
+    [Authorize(Roles = "Admin, Support")]
+    public async Task<ActionResult<Account>> UpdateAccountStatus(int id, [FromBody] AccountStatus newStatus)
+    {
+      Account? account = await accountService.UpdateAccountStatusAsync(id, newStatus);
       if (account == null)
       {
         return NotFound(new { message = "Account not found" });
