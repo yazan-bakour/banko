@@ -12,11 +12,11 @@ namespace Banko.Services
     {
       return await _context.Accounts
         .Include(a => a.User)
+        .OrderBy(a => a.CreatedAt)
         .ToListAsync();
     }
 
     public async Task<Account?> GetAccountByAccountIdAsync(int id)
-    // Change to GetAccounts and return list of accounts.
     {
       return await _context.Accounts
         .Include(a => a.User)
@@ -25,9 +25,15 @@ namespace Banko.Services
 
     public async Task<IEnumerable<Account>> GetAccountsByUserIdAsync(string userId)
     {
-      return await _context.Accounts
-          .Where(a => a.UserId.ToString() == userId)
-          .ToListAsync();
+      if (int.TryParse(userId, out int parsedUserId))
+      {
+        return await _context.Accounts
+            .Where(a => a.UserId == parsedUserId)
+            .Include(a => a.User)
+            .OrderBy(a => a.CreatedAt)
+            .ToListAsync();
+      }
+      return [];
     }
 
     public async Task<Account> CreateAccountAsync(Account account)

@@ -1,3 +1,4 @@
+using Banko.Helpers;
 using Banko.Models;
 using Banko.Models.DTOs;
 using Banko.Services;
@@ -11,7 +12,7 @@ namespace Banko.Controllers
   [Authorize]
   [ApiController]
   [Route("api/[controller]")]
-  public class FundsController(FundsService fundsService) : ControllerBase
+  public class FundsController(FundsService fundsService, UserHelper userHelper) : ControllerBase
   {
     private readonly FundsService _fundsService = fundsService;
 
@@ -39,9 +40,12 @@ namespace Banko.Controllers
 
       IEnumerable<Funds> existingFunds = await _fundsService.GetAllFundsAsync();
       bool isDuplicateId = existingFunds.Any(existingFund => existingFund.Name == funds.Name);
+      string currentUserId = userHelper.GetCurrentSignedInUserId();
 
       Funds newFunds = new()
       {
+        UserId = int.Parse(currentUserId), // the creator of the fund.
+        AccountId = funds.AccountId, // select account were you want to create fund.
         Name = funds.Name,
         Balance = funds.Balance,
         Description = funds.Description

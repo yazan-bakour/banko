@@ -9,7 +9,11 @@ namespace Banko.Models.DTOs
   {
     [Required]
     [DefaultValue("")]
-    public required string AccountNumber { get; set; }
+    public required string DestinationAccountNumber { get; set; }
+
+    [Required]
+    [DefaultValue("")]
+    public required string SourceAccountNumber { get; set; }
 
     [Required]
     [Range(0.01, double.MaxValue)]
@@ -26,5 +30,8 @@ namespace Banko.Models.DTOs
     [Required]
     [DefaultValue("")]
     public string? Description { get; set; } = string.Empty;
+
+    [Required]
+    public PaymentMethod PaymentMethod { get; set; }
   }
 }

@@ -11,27 +11,29 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Banko.Services
 {
-  public class TransactionsService(UserHelper UserHelper, AppDbContext context, IHttpContextAccessor HttpContext, AccountService AccountService)
+  public class TransactionsService(UserHelper _userHelper, AppDbContext _context, IHttpContextAccessor _httpContextAccessor)
   {
-    private readonly AppDbContext _context = context;
-    private readonly IHttpContextAccessor _httpContextAccessor = HttpContext;
-    private readonly AccountService _AccountService = AccountService;
-
     public async Task<IEnumerable<Transactions>> GetAllTransactionsByUserIdAsync()
     {
-      string userId = UserHelper.GetCurrentSignedInUserId();
-
-      IEnumerable<Account> sourceUserAccounts = await _AccountService.GetAccountsByUserIdAsync(userId);
-      Account sourceUserAccount = sourceUserAccounts.FirstOrDefault() ?? throw new UnauthorizedAccessException("No accounts found for user.");
+      string userId = _userHelper.GetCurrentSignedInUserId();
+      if (!int.TryParse(userId, out int parsedUserId))
+      {
+        throw new InvalidOperationException("Invalid user ID format.");
+      }
+      List<string> userAccountIds = await _context.Accounts
+                                        .Where(a => a.UserId == parsedUserId)
+                                        .Select(a => a.Id.ToString())
+                                        .ToListAsync();
 
       return await _context.Transactions
-        .Where(x => x.SourceAccountId == sourceUserAccount.Id.ToString())
+        .Where(t => userAccountIds.Contains(t.SourceAccountId) || userAccountIds.Contains(t.DestinationAccountId))
+        .OrderByDescending(t => t.CreatedAt)
         .ToListAsync();
     }
 
     public async Task<IEnumerable<Transactions>> GetTransactionsByDateRangeAsync(DateTime startDate, DateTime endDate)
     {
-      string userId = UserHelper.GetCurrentSignedInUserId();
+      string userId = _userHelper.GetCurrentSignedInUserId();
       endDate = endDate.Date.AddDays(1).AddTicks(-1);
 
       return await _context.Transactions
@@ -58,63 +60,83 @@ namespace Banko.Services
       }
     }
 
-    public async Task<Transactions> CreateTransactionAsync(Transactions transaction)
+    public async Task<ServiceResult<Transactions>> CreateTransactionAsync(Transactions transaction)
     {
-      string userId = UserHelper.GetCurrentSignedInUserId();
-
-      IEnumerable<Account> sourceUserAccounts = await _AccountService.GetAccountsByUserIdAsync(userId);
-      Account sourceUserAccount = sourceUserAccounts.FirstOrDefault() ?? throw new UnauthorizedAccessException("No accounts found for user.");
-      IEnumerable<Account> AllAccounts = await _AccountService.GetAllAccountsAsync();
-
-      transaction.SourceAccountId = sourceUserAccount.Id.ToString();
-      string? destinationAccountId = AllAccounts.FirstOrDefault(x => x.AccountNumber == transaction.DestinationAccountNumber)?.Id.ToString();
-
-      if (transaction.DestinationAccountNumber == sourceUserAccount.AccountNumber)
+      string userId = _userHelper.GetCurrentSignedInUserId();
+      if (!int.TryParse(userId, out int parsedUserId))
       {
-        throw new InvalidOperationException("You cannot transfer to your own account.");
+        return ServiceResult<Transactions>.Failure("Invalid user ID format.");
       }
-      if (sourceUserAccount.Balance < transaction.Amount)
+
+      Account? sourceUserAccount = await _context.Accounts.Include(a => a.User).FirstOrDefaultAsync(a => a.UserId == parsedUserId && a.AccountNumber == transaction.SourceAccountNumber);
+      Account? destinationAccount = await _context.Accounts.Include(a => a.User).FirstOrDefaultAsync(x => x.AccountNumber == transaction.DestinationAccountNumber);
+
+      if (destinationAccount == null)
       {
-        throw new InvalidOperationException("Insufficient funds.");
+        // We only allow transaction for internal accounts for now.
+        return ServiceResult<Transactions>.Failure("The destination account does not exist.");
       }
+      if (sourceUserAccount?.Balance < transaction.Amount)
+      {
+        return ServiceResult<Transactions>.Failure("Insufficient funds.");
+      }
+      if (transaction.Amount <= 0)
+      {
+        return ServiceResult<Transactions>.Failure("Transaction amount must be positive.");
+      }
+      if (transaction.DestinationAccountNumber == sourceUserAccount?.AccountNumber)
+      {
+        return ServiceResult<Transactions>.Failure("You cannot transfer to your own account.");
+      }
+      // if (!sourceUserAccount.IsActive || sourceUserAccount.Status != AccountStatus.Active)
+      // {
+      //   return ServiceResult<Transactions>.Failure("Source account is not active.");
+      // }
+      // if (!destinationAccount.IsActive || destinationAccount.Status != AccountStatus.Active)
+      // {
+      //   return ServiceResult<Transactions>.Failure("Destination account is not active.");
+      // }
 
       string ipAddress = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "Unknown";
-
-      if (sourceUserAccount?.Id.ToString() != transaction.SourceAccountId)
-      {
-        throw new UnauthorizedAccessException("Please sign in to make a transaction.");
-      }
-
       Metadata metadata = new()
       {
         IpAddress = ipAddress,
         Device = _httpContextAccessor.HttpContext?.Request?.Headers.UserAgent.ToString() ?? "Unknown",
-        Location = await UserHelper.GetLocationAsync(ipAddress)
+        Location = await _userHelper.GetLocationAsync(ipAddress)
       };
 
       transaction.Id = Guid.NewGuid();
       transaction.ReferenceNumber = $"REF-{Guid.NewGuid().ToString()[..8].ToUpper()}";
+      transaction.TransactionNumber = $"T-{DateTime.UtcNow.Ticks}-{transaction.ReferenceNumber}";
 
-      transaction.SourceAccountNumber = sourceUserAccount.AccountNumber;
+      transaction.SourceAccountNumber = sourceUserAccount!.AccountNumber;
       transaction.SourceName = sourceUserAccount.User?.FullName ?? "Unknown User";
       transaction.SourceAccountId = sourceUserAccount.Id.ToString();
 
-      transaction.DestinationAccountId = destinationAccountId ?? "Unknown Account Id";
-      transaction.RecipientName = AllAccounts.FirstOrDefault(x => x.Id.ToString() == destinationAccountId)?.User?.FullName ?? "Unknown Account Holder";
+      transaction.DestinationAccountNumber = destinationAccount!.AccountNumber;
+      transaction.DestinationAccountId = destinationAccount!.Id.ToString();
+      transaction.RecipientName = destinationAccount?.User?.FullName ?? "Unknown Account Holder";
 
-      transaction.Status = TransactionStatus.Created;
-      transaction.Currency = Currency.EUR;
-      transaction.PaymentMethod = PaymentMethod.CreditCard;
+      // once we have other services such as check in and out, we can adjust the status based on the bank approvals.
+      transaction.Status = TransactionStatus.Completed;
+      transaction.Currency = sourceUserAccount.Currency;
 
       transaction.CreatedAt = DateTime.UtcNow;
       transaction.UpdatedAt = DateTime.UtcNow;
       transaction.TransactionDate = DateTime.UtcNow;
       transaction.Metadata = [metadata];
 
+      sourceUserAccount.Balance -= transaction.Amount;
+      destinationAccount!.Balance += transaction.Amount;
+      sourceUserAccount.UpdatedAt = DateTime.UtcNow;
+      destinationAccount.UpdatedAt = DateTime.UtcNow;
+      sourceUserAccount.LastTransactionDate = DateTime.UtcNow;
+      destinationAccount.LastTransactionDate = DateTime.UtcNow;
+
       _context.Transactions.Add(transaction);
       await _context.SaveChangesAsync();
 
-      return transaction;
+      return ServiceResult<Transactions>.Success(transaction);
     }
   }
 }

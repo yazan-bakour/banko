@@ -21,18 +21,15 @@ namespace Banko.Mapping
 
       CreateMap<TransactionCreateDto, Transactions>()
         .ForMember(dest => dest.TransactionNumber, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
-        .ForMember(dest => dest.DestinationAccountNumber, opt => opt.MapFrom(src => src.AccountNumber))
         // Don't map properties that will be set in the service
         .ForMember(dest => dest.Id, opt => opt.Ignore())
         .ForMember(dest => dest.ReferenceNumber, opt => opt.Ignore())
-        .ForMember(dest => dest.SourceAccountNumber, opt => opt.Ignore())
         .ForMember(dest => dest.SourceAccountId, opt => opt.Ignore())
         .ForMember(dest => dest.SourceName, opt => opt.Ignore())
         .ForMember(dest => dest.DestinationAccountId, opt => opt.Ignore())
         .ForMember(dest => dest.RecipientName, opt => opt.Ignore())
         .ForMember(dest => dest.Status, opt => opt.Ignore())
         .ForMember(dest => dest.Currency, opt => opt.Ignore())
-        .ForMember(dest => dest.PaymentMethod, opt => opt.Ignore())
         .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
         .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
         .ForMember(dest => dest.TransactionDate, opt => opt.Ignore())

@@ -15,7 +15,7 @@ namespace Banko.Services
 
     public async Task<List<Funds>> GetAllFundsAsync()
     {
-      return await _context.Funds.Where(f => f.IsActive).ToListAsync();
+      return await _context.Funds.OrderBy(a => a.CreatedAt).ToListAsync();
     }
 
     public async Task<Funds> CreateFundsAsync(Funds funds)

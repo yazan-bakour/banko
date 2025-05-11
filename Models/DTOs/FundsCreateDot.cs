@@ -3,8 +3,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Banko.Models.DTOs
 {
-  public class FundsCreateDto
+  public class FundsCreateDto : BaseEntity
   {
+    [Required]
+    public int UserId { get; set; }
+
+    [Required]
+    public int? AccountId { get; set; }
+
     [Required]
     [DefaultValue("")]
     public string Name { get; set; } = string.Empty;

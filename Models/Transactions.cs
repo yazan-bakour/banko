@@ -118,8 +118,8 @@ namespace Banko.Models
     BankTransfer,
     [Description("SEBA Transfer")]
     SEBA,
-    [Description("Wire Transfer")]
-    Wire,
+    [Description("Direct Debit")]
+    DirectDebit,
   }
 
   public enum Currency

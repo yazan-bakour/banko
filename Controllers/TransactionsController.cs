@@ -10,18 +10,14 @@ namespace Banko.Controllers
   [Route("api/[controller]")]
   [ApiController]
   [Authorize]
-  public class TransactionsController(TransactionsService TransactionsService, AccountService AccountService, IMapper Mapper) : ControllerBase
+  public class TransactionsController(TransactionsService TransactionsService, IMapper Mapper) : ControllerBase
   {
-    private readonly TransactionsService _TransactionsService = TransactionsService;
-    private readonly AccountService _AccountService = AccountService;
-    private readonly IMapper _mapper = Mapper;
-
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TransactionReadDto>>> GetAllTransactionsForUser()
     {
-      IEnumerable<Transactions> transactions = await _TransactionsService.GetAllTransactionsByUserIdAsync();
-
-      return Ok(transactions);
+      IEnumerable<Transactions> transactions = await TransactionsService.GetAllTransactionsByUserIdAsync();
+      IEnumerable<TransactionReadDto> transactionDtos = Mapper.Map<IEnumerable<TransactionReadDto>>(transactions);
+      return Ok(transactionDtos);
     }
 
     [HttpGet("history")]
@@ -74,9 +70,9 @@ namespace Banko.Controllers
         startDate = DateTime.UtcNow.AddMonths(-1);
       }
 
-      IEnumerable<Transactions> transactions = await _TransactionsService.GetTransactionsByDateRangeAsync(startDate, endDate);
+      IEnumerable<Transactions> transactions = await TransactionsService.GetTransactionsByDateRangeAsync(startDate, endDate);
 
-      IEnumerable<TransactionReadDto> transactionDtos = _mapper.Map<IEnumerable<TransactionReadDto>>(transactions);
+      IEnumerable<TransactionReadDto> transactionDtos = Mapper.Map<IEnumerable<TransactionReadDto>>(transactions);
 
       return Ok(transactionDtos);
     }
@@ -89,30 +85,31 @@ namespace Banko.Controllers
       {
         return BadRequest("Insert Id or Account Number");
       }
-      IEnumerable<Transactions> transactions = await _TransactionsService.GetAllTransactionsByInputAsync(id, accountNumber);
+      IEnumerable<Transactions> transactions = await TransactionsService.GetAllTransactionsByInputAsync(id, accountNumber);
 
       return Ok(transactions);
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateTransaction([FromBody] TransactionCreateDto transactionCreateDto)
+    public async Task<ActionResult<TransactionReadDto>> CreateTransaction([FromBody] TransactionCreateDto transactionCreateDto)
     {
-      IEnumerable<Account> existingAccounts = await _AccountService.GetAllAccountsAsync();
+      Transactions transaction = Mapper.Map<Transactions>(transactionCreateDto);
+      // enhance this logic based on status once admin platform built.
+      ServiceResult<Transactions> serviceResult = await TransactionsService.CreateTransactionAsync(transaction);
 
-      bool existingAccountNumber = existingAccounts.Any(a => a.AccountNumber == transactionCreateDto.AccountNumber);
-
-      if (!existingAccountNumber)
+      if (!serviceResult.IsSuccess)
       {
-        // For now only internal accounts are supported.
-        return BadRequest("Account number does not match the existing accounts. Only internal accounts are supported.");
+        if (serviceResult.ErrorMessage == "Invalid user ID format.")
+        {
+          return Unauthorized(new { message = serviceResult.ErrorMessage });
+        }
+
+        return BadRequest(new { message = serviceResult.ErrorMessage, errors = serviceResult.Errors });
       }
 
-      Transactions transaction = _mapper.Map<Transactions>(transactionCreateDto);
+      TransactionReadDto transactionReadDto = Mapper.Map<TransactionReadDto>(serviceResult.Data);
 
-      // enhance this logic based on status
-      var createdTransaction = await _TransactionsService.CreateTransactionAsync(transaction);
-
-      return Ok(new { Message = "Transaction created successfully.", TransactionId = createdTransaction.Id });
+      return Ok(transactionReadDto);
     }
   }
 }

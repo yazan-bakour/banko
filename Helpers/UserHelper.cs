@@ -28,7 +28,7 @@ namespace Banko.Helpers
       string? userId = claims?.FirstOrDefault(c => c.Type == "userId" || c.Type == ClaimTypes.NameIdentifier)?.Value;
 
       // Remove this log
-      _logger.LogInformation("User ID: {UserId}", userId);
+      // _logger.LogInformation("User ID: {UserId}", userId);
 
       if (string.IsNullOrEmpty(userId))
       {
