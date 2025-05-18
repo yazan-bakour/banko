@@ -22,7 +22,7 @@ namespace Banko.Controllers
 
     [HttpPut("{id}")]
     // Update user role, for now.
-    public async Task<IActionResult> UpdateUser(int id, UserUpdateDto updateDto)
+    public async Task<IActionResult> UpdateUser(int id, UserAdminUpdateDto updateDto)
     {
       User? user = await userService.GetUserByIdAsync(id);
       if (user == null)

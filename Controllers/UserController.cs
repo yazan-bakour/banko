@@ -16,7 +16,6 @@ namespace Banko.Controllers
 {
   [Route("api/users")]
   [ApiController]
-  // primary constructor syntax
   public class UserController(UserService userService, UserHelper userHelper) : ControllerBase
   {
     [HttpPost("register")]
@@ -49,7 +48,6 @@ namespace Banko.Controllers
         return BadRequest(new { message = "Failed to register user." });
       }
 
-      // Return basic info (never return password hashes!)
       return Ok(new
       {
         message = "Registration successful.",
@@ -72,6 +70,7 @@ namespace Banko.Controllers
       }
 
       string token = userService.GenerateJwtToken(user);
+      user.LastLogin = DateTime.UtcNow;
 
       return Ok(new
       {
@@ -82,7 +81,23 @@ namespace Banko.Controllers
           user.FullName,
           user.Email,
           user.Role,
-          user.CreatedAt
+          user.CreatedAt,
+          user.LastLogin,
+          user.IsVerified,
+          user.FirstName,
+          user.LastName,
+          user.PhoneNumber,
+          user.Address,
+          user.City,
+          user.State,
+          user.ZipCode,
+          user.Country,
+          user.DateOfBirth,
+          user.Nationality,
+          user.Gender,
+          user.UniqueId,
+          user.UpdatedAt,
+          user.ProfilePictureDisplay
         }
       });
     }
@@ -146,12 +161,88 @@ namespace Banko.Controllers
           user = new
           {
             user.Id,
+            user.IsVerified,
+            user.Role,
             user.FullName,
+            user.FirstName,
+            user.LastName,
             user.Email,
+            user.PhoneNumber,
+            user.Address,
+            user.City,
+            user.State,
+            user.ZipCode,
+            user.Country,
+            user.DateOfBirth,
+            user.Nationality,
+            user.Gender,
+            user.UniqueId,
             user.CreatedAt,
-            user.Role
+            user.UpdatedAt,
+            user.ProfilePictureDisplay
           }
         });
+    }
+
+    [HttpPut("settings")]
+    [Authorize]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UpdateSettings([FromForm] UserSettingsDto settingsDto, IFormFile? profilePicture)
+    {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+      int userId = int.Parse(userHelper.GetCurrentSignedInUserId());
+      if (profilePicture != null)
+      {
+        try
+        {
+          var path = await UserService.UploadProfilePictureAsync(profilePicture);
+          settingsDto.ProfilePictureFile = path;
+        }
+        catch (InvalidOperationException ex)
+        {
+          return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+          return StatusCode(500, new { message = "Failed to upload profile picture", error = ex.Message });
+        }
+      }
+      var result = await userService.UpdateUserSettingsAsync(userId, settingsDto);
+
+      if (!result.IsSuccess)
+      {
+        return result.ErrorMessage.Contains("in use")
+            ? Conflict(new { message = result.ErrorMessage })
+            : BadRequest(new { message = result.ErrorMessage });
+      }
+
+      var u = result.Data;
+      return Ok(new
+      {
+        message = "User settings updated successfully.",
+        user = new
+        {
+          u.Id,
+          u.FirstName,
+          u.LastName,
+          u.Email,
+          u.PhoneNumber,
+          u.Address,
+          u.City,
+          u.State,
+          u.ZipCode,
+          u.Country,
+          u.DateOfBirth,
+          u.Nationality,
+          u.Gender,
+          u.UniqueId,
+          u.LastLogin,
+          ProfilePicture = u.ProfilePictureDisplay
+        }
+      });
     }
   }
 }
