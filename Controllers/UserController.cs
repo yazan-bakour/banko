@@ -186,30 +186,14 @@ namespace Banko.Controllers
 
     [HttpPut("settings")]
     [Authorize]
-    [Consumes("multipart/form-data")]
-    public async Task<IActionResult> UpdateSettings([FromForm] UserSettingsDto settingsDto, IFormFile? profilePicture)
+    public async Task<IActionResult> UpdateSettings([FromBody] UserSettingsDto settingsDto)
     {
       if (!ModelState.IsValid)
       {
         return BadRequest(ModelState);
       }
       int userId = int.Parse(userHelper.GetCurrentSignedInUserId());
-      if (profilePicture != null)
-      {
-        try
-        {
-          var path = await UserService.UploadProfilePictureAsync(profilePicture);
-          settingsDto.ProfilePictureFile = path;
-        }
-        catch (InvalidOperationException ex)
-        {
-          return BadRequest(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-          return StatusCode(500, new { message = "Failed to upload profile picture", error = ex.Message });
-        }
-      }
+
       var result = await userService.UpdateUserSettingsAsync(userId, settingsDto);
 
       if (!result.IsSuccess)

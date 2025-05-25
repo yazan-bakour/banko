@@ -7,11 +7,11 @@ public class UserSettingsDto
 {
   [Required(ErrorMessage = "First name is required")]
   [StringLength(100, MinimumLength = 2, ErrorMessage = "First name must be between 2 and 100 characters")]
-  public string FirstName { get; set; } = string.Empty;
+  public string? FirstName { get; set; } = string.Empty;
 
   [Required(ErrorMessage = "Last name is required")]
   [StringLength(100, MinimumLength = 2, ErrorMessage = "Last name must be between 2 and 100 characters")]
-  public string LastName { get; set; } = string.Empty;
+  public string? LastName { get; set; } = string.Empty;
 
   [EmailAddress(ErrorMessage = "Invalid email format")]
   [StringLength(100, ErrorMessage = "Email must not exceed 100 characters")]
@@ -58,4 +58,5 @@ public class UserSettingsDto
   [RegularExpression(@"(?i).*\.(jpg|jpeg|png|gif|bmp|webp)$",
       ErrorMessage = "Profile picture must be a valid image file (jpg, jpeg, png, gif, bmp, or webp)")]
   public string? ProfilePictureFile { get; set; }
+  public string? ProfilePictureDisplay { get; set; }
 }
