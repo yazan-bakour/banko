@@ -179,6 +179,7 @@ namespace Banko.Controllers
             user.UniqueId,
             user.CreatedAt,
             user.UpdatedAt,
+            user.Preferences,
             user.ProfilePictureDisplay
           }
         });
@@ -224,7 +225,9 @@ namespace Banko.Controllers
           u.Gender,
           u.UniqueId,
           u.LastLogin,
-          ProfilePicture = u.ProfilePictureDisplay
+          u.Preferences,
+          u.ProfilePictureDisplay,
+          u.ProfilePictureUrl
         }
       });
     }

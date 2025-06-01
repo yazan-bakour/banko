@@ -21,12 +21,12 @@ namespace Banko.Models
     public string FullName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "First name is required")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "First name must be between 2 and 100 characters")]
-    public string FirstName { get; set; } = string.Empty;
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "First user name must be between 2 and 100 characters")]
+    public string? FirstName { get; set; } = null;
 
     [Required(ErrorMessage = "Last name is required")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "Last name must be between 2 and 100 characters")]
-    public string LastName { get; set; } = string.Empty;
+    [StringLength(100, MinimumLength = 2, ErrorMessage = "Last user name must be between 2 and 100 characters")]
+    public string? LastName { get; set; } = null;
 
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Invalid email format")]
@@ -93,6 +93,9 @@ namespace Banko.Models
     // Helper property (not mapped to database, use [NotMapped] if using EF Core)
     [System.ComponentModel.DataAnnotations.Schema.NotMapped]
     public string? ProfilePictureDisplay => ProfilePictureUrl ?? ProfilePictureFile;
-
+    /// <summary>
+    /// User preferences stored as key-value pairs
+    /// </summary>
+    public Dictionary<string, string>? Preferences { get; set; }
   }
 }

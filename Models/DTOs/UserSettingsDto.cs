@@ -5,20 +5,19 @@ namespace Banko.Models.DTOs;
 
 public class UserSettingsDto
 {
-  [Required(ErrorMessage = "First name is required")]
   [StringLength(100, MinimumLength = 2, ErrorMessage = "First name must be between 2 and 100 characters")]
-  public string? FirstName { get; set; } = string.Empty;
+  public string? FirstName { get; set; } = null;
 
-  [Required(ErrorMessage = "Last name is required")]
   [StringLength(100, MinimumLength = 2, ErrorMessage = "Last name must be between 2 and 100 characters")]
-  public string? LastName { get; set; } = string.Empty;
+  public string? LastName { get; set; } = null;
 
   [EmailAddress(ErrorMessage = "Invalid email format")]
   [StringLength(100, ErrorMessage = "Email must not exceed 100 characters")]
-  public string? Email { get; set; } = string.Empty;
+  public string? Email { get; set; } = null;
 
-  [StringLength(100, MinimumLength = 5, ErrorMessage = "Password must be between 5 and 100 characters")]
-  public string? NewPassword { get; set; } = string.Empty;
+  [StringLength(100, ErrorMessage = "Password must not exceed 100 characters")]
+  [MinLength(5, ErrorMessage = "Password must be at least 5 characters")]
+  public string? NewPassword { get; set; } = null;
 
   [Phone(ErrorMessage = "Please enter a valid phone number")]
   [StringLength(20, ErrorMessage = "Phone number must not exceed 20 characters")]
@@ -59,4 +58,5 @@ public class UserSettingsDto
       ErrorMessage = "Profile picture must be a valid image file (jpg, jpeg, png, gif, bmp, or webp)")]
   public string? ProfilePictureFile { get; set; }
   public string? ProfilePictureDisplay { get; set; }
+  public Dictionary<string, string>? Preferences { get; set; }
 }

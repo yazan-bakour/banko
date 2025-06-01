@@ -108,13 +108,13 @@ namespace Banko.Services
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(settings.NewPassword);
       }
 
-      if (settings.FirstName != user.FirstName || settings.LastName != user.LastName)
+      if (settings.FirstName != null || settings.LastName != null)
       {
         user.FirstName = settings.FirstName;
         user.LastName = settings.LastName;
         user.FullName = $"{user.FirstName} {user.LastName}";
 
-        string baseId = UserHelper.GenerateUserIdBase(user.FirstName, user.LastName);
+        string baseId = UserHelper.GenerateUserIdBase(user.FirstName ?? string.Empty, user.LastName ?? string.Empty);
         if (!await FindUniqueUserIdAsync(baseId))
           user.UniqueId = baseId;
         else
@@ -143,9 +143,10 @@ namespace Banko.Services
       if (settings.ZipCode != null) user.ZipCode = settings.ZipCode;
       if (settings.Country != null) user.Country = settings.Country;
       if (settings.Nationality != null) user.Nationality = settings.Nationality;
+      if (settings.Preferences != null) user.Preferences = settings.Preferences;
       if (settings.ProfilePictureUrl != null) user.ProfilePictureUrl = settings.ProfilePictureUrl;
-      if (settings.ProfilePictureFile != null) user.ProfilePictureFile = settings.ProfilePictureFile;
-
+      if (settings.ProfilePictureDisplay != null) user.ProfilePictureUrl = settings.ProfilePictureDisplay;
+      // if (settings.ProfilePictureFile != null) user.ProfilePictureFile = settings.ProfilePictureFile;
       user.UpdatedAt = DateTime.UtcNow;
 
       try
