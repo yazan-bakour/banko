@@ -97,7 +97,8 @@ namespace Banko.Controllers
           user.Gender,
           user.UniqueId,
           user.UpdatedAt,
-          user.ProfilePictureDisplay
+          user.ProfilePictureDisplay,
+          user.Preferences,
         }
       });
     }

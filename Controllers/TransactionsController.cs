@@ -19,7 +19,7 @@ namespace Banko.Controllers
       IEnumerable<TransactionReadDto> transactionDtos = Mapper.Map<IEnumerable<TransactionReadDto>>(transactions);
       return Ok(transactionDtos);
     }
-
+    // Keep for future sorting, filtering
     [HttpGet("history")]
     public async Task<ActionResult<IEnumerable<TransactionReadDto>>> GetAllTransactionsForUserByDate(
       [FromQuery] string? period = null,
@@ -75,6 +75,62 @@ namespace Banko.Controllers
       IEnumerable<TransactionReadDto> transactionDtos = Mapper.Map<IEnumerable<TransactionReadDto>>(transactions);
 
       return Ok(transactionDtos);
+    }
+
+    [HttpGet("history/pdf")]
+    public async Task<IActionResult> DownloadStatementPdf(
+    [FromQuery] string? period = null,
+    [FromQuery] DateTime? fromDate = null,
+    [FromQuery] DateTime? toDate = null)
+    {
+      DateTime startDate;
+      DateTime endDate = DateTime.UtcNow;
+
+      if (!string.IsNullOrEmpty(period))
+      {
+        switch (period.ToLowerInvariant())
+        {
+          case "1m":
+          case "last-month":
+            startDate = DateTime.UtcNow.AddMonths(-1);
+            break;
+          case "3m":
+          case "last-3-months":
+            startDate = DateTime.UtcNow.AddMonths(-3);
+            break;
+          case "6m":
+          case "last-6-months":
+            startDate = DateTime.UtcNow.AddMonths(-6);
+            break;
+          default:
+            return BadRequest($"Invalid period parameter: {period}. Valid values are '1m', '3m', '6m'.");
+        }
+      }
+      else if (fromDate.HasValue)
+      {
+        startDate = fromDate.Value;
+        if (toDate.HasValue)
+        {
+          endDate = toDate.Value;
+        }
+        if (startDate > endDate)
+        {
+          return BadRequest("Start date cannot be later than end date.");
+        }
+      }
+      else
+      {
+        startDate = DateTime.UtcNow.AddMonths(-1);
+      }
+
+      // Fetch transactions
+      var transactions = await TransactionsService.GetTransactionsByDateRangeAsync(startDate, endDate);
+
+      // Generate PDF using QuestPDF
+      var pdfBytes = GeneratePdfService.GenerateStatementPdf(transactions, startDate, endDate);
+
+      var fileName = $"statement_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.pdf";
+      return File(pdfBytes, "application/pdf", fileName);
     }
 
     [HttpGet("search")]
