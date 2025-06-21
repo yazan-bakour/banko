@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Banko.Models.DTOs;
 using Banko.Validation;
 
 namespace Banko.Models
@@ -14,6 +15,7 @@ namespace Banko.Models
     Male,
     Female
   }
+
   public class User : BaseEntity
   {
     [Required(ErrorMessage = "Full name is required")]
@@ -96,6 +98,6 @@ namespace Banko.Models
     /// <summary>
     /// User preferences stored as key-value pairs
     /// </summary>
-    public Dictionary<string, string>? Preferences { get; set; }
+    public Preferences? Preferences { get; set; }
   }
 }

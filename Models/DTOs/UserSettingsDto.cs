@@ -58,5 +58,5 @@ public class UserSettingsDto
       ErrorMessage = "Profile picture must be a valid image file (jpg, jpeg, png, gif, bmp, or webp)")]
   public string? ProfilePictureFile { get; set; }
   public string? ProfilePictureDisplay { get; set; }
-  public Dictionary<string, string>? Preferences { get; set; }
+  public Preferences? Preferences { get; set; }
 }

@@ -64,7 +64,10 @@ namespace Banko.Services
 
     public async Task<User?> GetUserByIdAsync(int id)
     {
-      return await _context.Users.FindAsync(id);
+      return await _context.Users
+        .Include(u => u.Preferences)
+        .ThenInclude(p => p.Privacy)
+        .FirstOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task<IEnumerable<User>> GetUserByRoleAsync(UserRole role)
@@ -74,7 +77,10 @@ namespace Banko.Services
 
     public async Task<User?> GetUserByEmailAsync(string email)
     {
-      return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+      return await _context.Users
+        .Include(u => u.Preferences)
+        .ThenInclude(p => p.Privacy)
+        .FirstOrDefaultAsync(u => u.Email == email);
     }
 
     public async Task<User?> DeleteUserAsync(User user)
@@ -148,6 +154,38 @@ namespace Banko.Services
       if (settings.ProfilePictureDisplay != null) user.ProfilePictureUrl = settings.ProfilePictureDisplay;
       // if (settings.ProfilePictureFile != null) user.ProfilePictureFile = settings.ProfilePictureFile;
       user.UpdatedAt = DateTime.UtcNow;
+
+      // if (settings.Preferences != null)
+      // {
+      //   // Create Preferences if it doesn't exist
+      //   if (user.Preferences == null)
+      //     user.Preferences = new Preferences();
+
+      //   // Update Preferences properties
+      //   user.Preferences.DarkMode = settings.Preferences.DarkMode;
+      //   user.Preferences.Language = settings.Preferences.Language;
+      //   user.Preferences.TimeZone = settings.Preferences.TimeZone;
+      //   user.Preferences.DateFormat = settings.Preferences.DateFormat;
+      //   user.Preferences.CurrencyDisplay = settings.Preferences.CurrencyDisplay;
+      //   user.Preferences.PushNotifications = settings.Preferences.PushNotifications;
+      //   user.Preferences.TransactionAlerts = settings.Preferences.TransactionAlerts;
+      //   user.Preferences.LowBalanceAlerts = settings.Preferences.LowBalanceAlerts;
+      //   user.Preferences.LowBalanceThreshold = settings.Preferences.LowBalanceThreshold;
+
+      //   // Update Privacy settings
+      //   if (settings.Preferences.Privacy != null)
+      //   {
+      //     // Create Privacy if it doesn't exist
+      //     if (user.Preferences.Privacy == null)
+      //       user.Preferences.Privacy = new Privacy();
+
+      //     // Update individual Privacy properties
+      //     user.Preferences.Privacy.HideEmail = settings.Preferences.Privacy.HideEmail;
+      //     user.Preferences.Privacy.HideBalance = settings.Preferences.Privacy.HideBalance;
+      //     user.Preferences.Privacy.EnableTwoFactorAuth = settings.Preferences.Privacy.EnableTwoFactorAuth;
+      //     user.Preferences.Privacy.ReceiveMarketingEmails = settings.Preferences.Privacy.ReceiveMarketingEmails;
+      //   }
+      // }
 
       try
       {
